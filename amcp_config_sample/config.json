@@ -1,5 +1,5 @@
 {
-  "url": "http://43.163.199.152:3400/amcp/mini-machine",
+  "url": "http://1.2.3.4:3400/amcp/mini-machine",
   "function":{
     "name": "access_remote_machine",
     "description": "AMCP(agentplus model context protocol) that can access to remote machine.",
@@ -30,7 +30,7 @@
     "tips":"tell users what your tool can do."
   },
   "params": {
-    "password": "hD1mk90997907"
+    "password": ".........."
   }
 }
 

@@ -1,184 +1,121 @@
+# AMCP Flask Server
+https://github.com/zhouwuqi/amcp-remote-access-simple
 
-# AMCP (AgentPlus Model Context Protocol) 构建指南
+## 项目简介
+这是一个基于Flask框架实现的AMCP（AgentPlus Model Context Protocol）服务端，用于远程访问和管理系统资源。该项目提供了一套RESTful API接口，允许客户端通过HTTP请求获取系统信息、文件内容和执行其他管理操作。
 
-AMCP 是一套用于与 AgentPlus 平台通信的标准协议，允许开发者将自定义服务接入平台并实现同步、异步以及文件处理等功能。本文档旨在指导用户如何基于 Flask 框架构建符合 AMCP 规范的服务接口，并通过示例说明其工作原理及应用场景。
+## 功能特性
+- **系统监控**：查看文件夹内容、运行进程、NVIDIA GPU状态、内存使用情况和磁盘使用情况
+- **文件操作**：读取文件内容、在文件中搜索关键词
+- **安全验证**：通过密码验证确保API访问的安全性
+- **高性能部署**：使用Gunicorn和Gevent进行生产级部署
 
-## 一、核心组件概述
+## 技术栈
+- Python 3.x
+- Flask Web框架
+- Gunicorn WSGI服务器
+- Gevent异步网络库
+- Requests HTTP库
 
-本示例代码展示了三种典型的 AMCP 使用场景：
-1. **接收文件传输请求** (`/amcp/receive_file`)
-2. **处理同步调用请求** (`/amcp/sync`)
-3. **支持异步任务处理** (`/amcp/async`)
+## 安装依赖
+```bash
+pip install -r requirements.txt
+```
 
-所有请求均遵循统一的数据格式封装：
+## 快速启动
+```bash
+chmod +x run.sh
+./run.sh
+```
+
+服务将在 `http://0.0.0.0:3400` 上运行。
+
+## API接口说明
+
+### 主要端点
+- `POST /amcp/mini-machine` - 执行各种系统管理指令
+
+### 支持的指令
+1. `tell-folder` - 查看文件夹内容
+2. `tell-process` - 查看运行中的进程
+3. `tell-nvidia` - 查看NVIDIA GPU状态
+4. `tell-memory` - 查看内存使用情况
+5. `tell-disk` - 查看磁盘使用情况
+6. `read-file` - 读取文件内容
+7. `search-in-file` - 在文件中搜索关键词
+
+### agentplus中配置config格式
 ```json
 {
-  "params": {}, // 固定参数配置
-  "args": {},   // 来自会话的信息
-  "input": {}   // 输入数据
-}
-```
-
----
-
-## 二、构建流程详解
-
-### 步骤1：初始化 Flask 蓝图
-
-首先创建一个 Flask 的蓝图对象来组织路由逻辑：
-```python
-from flask import Blueprint
-blueprint = Blueprint('tools', __name__)
-```
-
-该蓝图将被注册到主应用中以启用相关功能。
-
----
-
-### 步骤2：通用辅助函数
-
-为了简化 HTTP 请求操作，我们提供了一个 `post_json` 函数用于向指定 URL 发送 JSON 数据包：
-```python
-def post_json(url, info, headers=None, timeout=30):
-    try:
-        default_headers = {"Content-Type": "application/json"}
-        if headers:
-            default_headers.update(headers)
-        response = requests.post(url, json=info, headers=default_headers, timeout=timeout)
-        response.raise_for_status()
-        return response.json()
-    except Exception as e:
-        raise Exception(f"POST请求失败: {str(e)}")
-```
-此方法可复用于后续的回调通知或状态更新。
-
----
-
-### 步骤3：实现 `/amcp/receive_file` 接口
-
-该端点负责接收由 AgentPlus 发起的文件上传请求。解析出文件链接后可根据业务需求进一步处理内容。
-```python
-@blueprint.route('/amcp/receive_file', methods=['POST'])
-def sample_receive_file():
-    data = request.get_json()
-    file_url = data["input"]["file_url"]
-    # 处理文件下载与分析逻辑...
-    
-    return jsonify({
-        "statusCode": 1,
-        "returnData": {...}
-    })
-```
-
-#### 流程图解：
-```
-[AgentPlus] -- 发送含文件URL的JSON --> [Your Server]
-               ↑ 解析 input.file_url 获取资源地址
-               ↓ 执行本地处理逻辑
-           <-- 返回执行结果 --
-```
-
----
-
-### 步骤4：实现 `/amcp/sync` 接口
-
-这是一个标准的同步请求处理器，适用于即时响应型任务。客户端发送指令后等待直到收到返回结果为止。
-```python
-@blueprint.route('/amcp/sync', methods=['POST'])
-def sample_sync():
-    data = request.get_json()
-    # 根据 input 内容进行相应计算
-    
-    return jsonify({
-        "statusCode": 1,
-        "returnData": {...}
-    })
-```
-
-#### 特点：
-- 快速反馈；
-- 不适合耗时较长的操作；
-
----
-
-### 步骤5：实现 `/amcp/async` 接口
-
-对于需要较长时间才能完成的任务，推荐使用异步模式。它包括两个阶段：
-1. 初始确认并生成消息标识符（messageid）
-2. 后台线程持续运行并在完成后主动上报状态
-
-关键步骤如下所示：
-
-#### 第一步：初始化异步消息
-```python
-url = "https://server.agentplus.cloud/back/api/create_async_message"
-info = {
-    "chatid": args["chatid"],
-    "token": args["create_async_message_token"],
-    "params": { ... }  # 初始状态描述
-}
-result = post_json(url, info)
-messageid = result["returnData"]["messageid"]
-```
-
-#### 第二步：启动后台处理线程
-```python
-threading.Thread(target=async_task, args=(messageid, args, input)).start()
-```
-
-#### 第三步：异步任务主体逻辑
-```python
-def async_task(messageid, args, input):
-    try:
-        time.sleep(3)  # 模拟耗时操作
-        
-        update_info = {
-            "messageid": messageid,
-            "token": args["update_async_message_token"],
-            "params": {
-                "status": "done",
-                "image_urls": [...],
-                ...
-            }
+  "url": "http://1.2.3.4:3400/amcp/mini-machine",
+  "function":{
+    "name": "access_remote_machine",
+    "description": "AMCP(agentplus model context protocol) that can access to remote machine.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "instruction": {
+          "type": "string",
+          "description": "instruction that you want to interact with this system,choose from here:(1)'tell-folder':tell what is inside the folder,require path like /home.(2)'tell-process':tell what process is running.(3)'tell-nvidia':tell about the nvidia GPU's status (if have one).(4)'tell-memory':tell memory usage.(5)'tell-disk':tell disk usage.(6)'read-file':read file by path and row,require path and row,path like /folder/code.py, and the row parameter decides where you start reading,basiclly you should input 1 to read from first line.(7)'search-in-file':search any keyword or sentence in a file,require path and value."
+        },
+        "path": {
+          "type": "string",
+          "description": "the path of folder or file that you want.leave 0 if you do not need it."
+        },
+        "row": {
+          "type": "number",
+          "description": "the row when you are reading a file,basiclly you can input 1 if you want read from the first line,leave 0 if you do not need it."
+        },
+        "value": {
+          "type": "string",
+          "description": "keyword or sentence if you are searching in a file,leave 0 if you do not need it."
         }
-        post_json("https://server.agentplus.cloud/back/api/update_async_message", update_info)
-        
-    except Exception as e:
-        error_info = {
-            "messageid": messageid,
-            "token": args["update_async_message_token"],
-            "params": {
-                "status": "error",
-                "content": f"error message: {str(e)}"
-            }
-        }
-        post_json(..., error_info)
+      }
+    }
+  },
+  "frontend":{
+    "title":"remote access(simple)",
+    "tips":"tell users what your tool can do."
+  },
+  "params": {
+    "password": "......."
+  }
+}
+
 ```
 
-#### 异步处理流程图：
+## 配置说明
+- 服务端口：3400
+- 密码验证：在`views.py`中设置`PASSWORD`常量
+- 工作进程数：在`run.sh`中配置`NUM_WORKERS`变量
+
+## 安全注意事项
+1. 请务必修改默认密码以确保安全性
+2. 建议在生产环境中使用HTTPS协议
+3. 不要在公开网络上暴露此服务，除非采取适当的安全措施
+
+## 目录结构
 ```
-[AgentPlus] -- 发起异步请求 --> [Your Server]
-              ↓ 创建初始消息 (create_async_message)
-              ↓ 启动后台线程处理任务
-              ↓ 完成后调用 update_async_message 更新状态
-          <-- 返回初步接受信号 --
+.
+├── amcp_config_sample/      # 配置文件示例目录
+├── __pycache__/             # Python缓存目录
+├── commands.py              # 系统命令执行逻辑
+├── main.py                  # Flask应用主入口
+├── readme.md                # 项目说明文档
+├── requirements.txt         # Python依赖包列表
+├── run.sh                   # 服务启动脚本
+├── terminal.py              # 终端命令执行模块
+└── views.py                 # API路由和业务逻辑
 ```
 
----
+## 贡献指南
+欢迎提交Issue和Pull Request来改进这个项目。在贡献代码前，请确保：
+1. 遵循现有的代码风格
+2. 添加适当的测试用例
+3. 更新相关文档
 
-## 三、部署建议
+## 许可证
+[待补充具体的许可证信息]
 
-确保您的服务满足以下要求以便顺利集成至 AgentPlus 生态系统：
-
-| 项目 | 描述 |
-|------|------|
-| 协议支持 | HTTPS 必须开启 |
-| 认证方式 | Token 验证机制 |
-| 数据格式 | 统一封装为 JSON 结构体 |
-| 错误处理 | 明确 statusCode 和 message 字段 |
-
-此外还应考虑添加日志记录模块便于调试追踪问题。
-
----
-
-以上就是完整的 AMCP 接口开发文档。希望这份材料能够帮助您快速搭建属于自己的智能代理服务！如果您有任何疑问欢迎随时咨询技术支持团队获取更多细节信息。
+## 联系方式
+如需技术支持或有任何疑问，请联系项目维护者。
