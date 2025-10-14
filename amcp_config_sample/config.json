@@ -1,0 +1,36 @@
+{
+  "url": "http://43.163.199.152:3400/amcp/mini-machine",
+  "function":{
+    "name": "access_remote_machine",
+    "description": "AMCP(agentplus model context protocol) that can access to remote machine.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "instruction": {
+          "type": "string",
+          "description": "instruction that you want to interact with this system,choose from here:(1)'tell-folder':tell what is inside the folder,require path like /home.(2)'tell-process':tell what process is running.(3)'tell-nvidia':tell about the nvidia GPU's status (if have one).(4)'tell-memory':tell memory usage.(5)'tell-disk':tell disk usage.(6)'read-file':read file by path and row,require path and row,path like /folder/code.py, and the row parameter decides where you start reading,basiclly you should input 1 to read from first line.(7)'search-in-file':search any keyword or sentence in a file,require path and value."
+        },
+        "path": {
+          "type": "string",
+          "description": "the path of folder or file that you want.leave 0 if you do not need it."
+        },
+        "row": {
+          "type": "number",
+          "description": "the row when you are reading a file,basiclly you can input 1 if you want read from the first line,leave 0 if you do not need it."
+        },
+        "value": {
+          "type": "string",
+          "description": "keyword or sentence if you are searching in a file,leave 0 if you do not need it."
+        }
+      }
+    }
+  },
+  "frontend":{
+    "title":"remote access(simple)",
+    "tips":"tell users what your tool can do."
+  },
+  "params": {
+    "password": "hD1mk90997907"
+  }
+}
+

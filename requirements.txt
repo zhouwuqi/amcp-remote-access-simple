@@ -1,0 +1,5 @@
+flask
+dotenv
+requests
+gevent
+gunicorn
