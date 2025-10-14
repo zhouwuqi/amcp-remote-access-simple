@@ -11,7 +11,7 @@ from commands import *
 blueprint = Blueprint('tools', __name__)
 
 #######################################
-PASSWORD = "hD1mk90997907"
+PASSWORD = "xxxxxxxxxxxx"
 #######################################
 
 
