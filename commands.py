@@ -76,7 +76,7 @@ def command_tell_cpu():
 
 
 def command_search_file_folder(path,value):
-    return(run_command("find "+path+" -name" + value))
+    return(run_command("find "+path+" -name " + value))
 
 if __name__ == "__main__":
 
