@@ -7,33 +7,15 @@ import string
 import json
 import threading
 from commands import *
+from dotenv import load_dotenv
 
 blueprint = Blueprint('tools', __name__)
-
+load_dotenv()
 #######################################
-PASSWORD = "xxxxxxxxxxxx"
+PASSWORD = os.getenv("PASSWORD")
 #######################################
 
 
-
-
-# 向特定服务器发送json
-def post_json(url, info, headers=None, timeout=30):
-    try:
-        default_headers = {"Content-Type": "application/json"}
-        if headers:
-            default_headers.update(headers)
-        response = requests.post(url, json=info, headers=default_headers, timeout=timeout)
-        response.raise_for_status()
-        return response.json()
-    except Exception as e:
-        raise Exception(f"POST请求失败: {str(e)}")
-
-
-
-
-# ----------------------------------------------------------------
-# 接受来自agentplus的普通调用
 @blueprint.route('/amcp/mini-machine', methods=['POST'])
 def sample_sync():
 
@@ -68,6 +50,9 @@ def sample_sync():
             elif(instruction == "tell-disk"):
                 returnData = command_tell_disk()
 
+            elif(instruction == "tell-cpu"):
+                returnData = command_tell_cpu()
+
             elif(instruction == "read-file"):
                 if("path" in input.keys()):
                     path = input["path"]
@@ -87,6 +72,17 @@ def sample_sync():
                     returnData = find_keyword_in_file(path, value)
                 else:
                     returnData = "invaild path or value"
+
+            elif(instruction == "search-file"):
+                if("path" in input.keys() and "value" in input.keys()):
+                    path = input["path"]
+                    value = input["value"]
+                    returnData = command_search_file_folder(path, value)
+                else:
+                    returnData = "invaild path or value"
+
+            else:
+                returnData = "no such instruction."
  
         else:
             returnData = "invaild instruction"     

@@ -71,6 +71,13 @@ def find_keyword_in_file(path, keyword):
     return {"find_in_row": line_numbers}
 
 
+def command_tell_cpu():
+    return(run_command("lscpu"))
+
+
+def command_search_file_folder(path,value):
+    return(run_command("find "+path+" -name" + value))
+
 if __name__ == "__main__":
 
     path = "/home"
