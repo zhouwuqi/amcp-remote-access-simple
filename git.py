@@ -4,7 +4,31 @@ import base64
 # 可选：添加 GitHub Token 来提高请求频率限制
 GITHUB_TOKEN = None  # 如果你有 token，可以设置在这里
 
+def get_repo_files_in_path(owner, repo, path=""):
+    """
+    获取特定仓库中指定路径下的文件列表
+    :param owner: GitHub 用户名
+    :param repo: 仓库名
+    :param path: 相对于仓库根目录的路径, 例如 'src/components'。空字符串或 '/' 表示根目录。
+    :return: 文件列表和默认分支
+    """
+    branch = get_default_branch(owner, repo)
+    # 确保路径格式正确，去除开头的 '/'
+    path = path.strip("/")
+    url = f'https://api.github.com/repos/{owner}/{repo}/contents/{path}'
+    params = {'ref': branch}
+    headers = {}
+    if GITHUB_TOKEN:
+        headers['Authorization'] = f'token {GITHUB_TOKEN}'
 
+    response = requests.get(url, params=params, headers=headers)
+
+    if response.status_code == 200:
+        return response.json(), branch
+    else:
+        print(f"[Error] 获取路径 '{path}' 下的文件列表失败: {response.status_code}")
+        return [], branch
+        
 def get_default_branch(owner, repo):
     """获取仓库的默认分支"""
     url = f'https://api.github.com/repos/{owner}/{repo}'

@@ -130,6 +130,28 @@ def sample_sync():
                     # value = input["value"]
                 else:
                     returnData = "invaild path or row."
+
+
+            elif(instruction == "tell-git-folder"):
+                if("path" in input.keys()):
+                    path = input["path"] # 这个 path 是一个包含 owner, repo, folder_path 的 JSON 字符串或字典
+                    try:
+                        # 两种情况都有可能
+                        try:
+                            owner = path["owner"]
+                            repo = path["repo"]
+                            folder_path = path["folder_path"]
+                        except:
+                            pathDict = json.loads(path)
+                            owner = pathDict["owner"]
+                            repo = pathDict["repo"]
+                            folder_path = pathDict["folder_path"]
+                        
+                        returnData = git_read_folder_in_repo(owner, repo, folder_path)
+                    except Exception as e:
+                        returnData = f"invaild path or folder_path, please input a valid json: {str(e)}"
+                else:
+                    returnData = "invaild path or folder_path."
                 
 
             else:

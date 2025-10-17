@@ -137,6 +137,27 @@ def git_read_file_by_rows(file_path, owner, repo, start_row=None, max_lines=100)
     return metadata + ''.join(selected_lines)
 
 
+
+def git_read_folder_in_repo(owner, repo, path):
+    """
+    获取特定仓库中指定文件夹下的文件列表
+    :param owner: GitHub 用户名
+    :param repo: 仓库名
+    :param path: 相对于仓库根目录的路径
+    :return: 包含默认分支和文件列表的字典
+    """
+    try:
+        files, branch = get_repo_files_in_path(owner, repo, path)
+        fileList = [file['name'] for file in files]
+        return {
+            "branch_default": branch,
+            "fileList": fileList
+        }
+    except Exception as e:
+        return {"error": f"获取文件列表时出错: {str(e)}"}
+
+        
+
 if __name__ == "__main__":
 
     path = "/home"

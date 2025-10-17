@@ -1,4 +1,6 @@
 
+```markdown
+
 # AMCP Flask Server  
 🔗 GitHub 地址：[https://github.com/zhouwuqi/amcp-remote-access-simple](https://github.com/zhouwuqi/amcp-remote-access-simple)
 
@@ -26,8 +28,9 @@
 ### 🌐 Git 支持（新增）
 - `tell-git`: 获取 GitHub 公开仓库的基本信息（默认分支 + 文件列表）  
 - `read-git-file`: 读取 GitHub 公开仓库中任意文本文件的内容（按行分页）
+- `tell-git-folder`: 获取 GitHub 公开仓库中指定文件夹下的文件列表
 
-> ⚠️ 注意：目前这两个接口仅支持公开仓库。若需访问私有仓库，请配置有效的 GitHub Token。
+> ⚠️ 注意：目前这三个接口仅支持公开仓库。若需访问私有仓库，请配置有效的 GitHub Token。
 
 ---
 
@@ -80,6 +83,9 @@ chmod +x run.sh
 | `search-file` | 搜索特定文件 |
 | `tell-git` | 获取 GitHub 仓库信息 |
 | `read-git-file` | 读取 GitHub 文件内容 |
+| `tell-git-folder` | 获取 GitHub 仓库中指定文件夹下的文件列表 |
+
+> ⚠️ 注意：目前 `tell-git`、`read-git-file` 和 `tell-git-folder` 这三个接口仅支持公开仓库。若需访问私有仓库，请配置有效的 GitHub Token。
 
 ---
 
@@ -96,7 +102,7 @@ chmod +x run.sh
       "properties": {
         "instruction": {
           "type": "string",
-          "description": "instruction that you want to interact with this system,choose from here:(1)'tell-folder':tell what is inside the folder,require path like /home.(2)'tell-process':tell what process is running.(3)'tell-nvidia':tell about the nvidia GPU's status (if have one).(4)'tell-memory':tell memory usage.(5)'tell-disk':tell disk usage.(6)'read-file':read file by path and row,require path and row,path like /folder/code.py, and the row parameter decides where you start reading,basiclly you should input 1 to read from first line.(7)'search-in-file':search any keyword or sentence in a file,require path and value.(8)'search-file':to find file or folder under the path,require path and value,path for the searching range,value for target file's name(or folder).(9)'tell-cpu':get cpu info.(10)'tell-git':check a git repository by inputing a path parameter with a like {'owner':owner's name,'repo':repository's name},then you will get the information of that repository(11)'read-git-file':check a file in inside a git repository by inputing path parameter with  like {'owner':owner's name,'repo':repository's name,'filename':file's name inside that git like 'readme.md' or 'folder/file.xx'}, and maybe the row parameter ,that decides where you start reading,basiclly you should input 1 to read from first line."
+          "description": "instruction that you want to interact with this system,choose from here:(1)'tell-folder':tell what is inside the folder,require path like /home.(2)'tell-process':tell what process is running.(3)'tell-nvidia':tell about the nvidia GPU's status (if have one).(4)'tell-memory':tell memory usage.(5)'tell-disk':tell disk usage.(6)'read-file':read file by path and row,require path and row,path like /folder/code.py, and the row parameter decides where you start reading,basiclly you should input 1 to read from first line.(7)'search-in-file':search any keyword or sentence in a file,require path and value.(8)'search-file':to find file or folder under the path,require path and value,path for the searching range,value for target file's name(or folder).(9)'tell-cpu':get cpu info.(10)'tell-git':check a git repository by inputing a path parameter with a like {'owner':owner's name,'repo':repository's name},then you will get the information of that repository(11)'read-git-file':check a file in inside a git repository by inputing path parameter with  like {'owner':owner's name,'repo':repository's name,'filename':file's name inside that git like 'readme.md' or 'folder/file.xx'}, and maybe the row parameter ,that decides where you start reading,basiclly you should input 1 to read from first line.(12)'tell-git-folder':check files in a specific folder of a git repository by inputing path parameter with  like {'owner':owner's name,'repo':repository's name,'folder_path':'folder_relative_path'}."
         },
         "path": {
           "type": "string",
@@ -179,3 +185,4 @@ chmod +x run.sh
 
 如需技术支持或有任何疑问，请联系项目维护者。
 
+```

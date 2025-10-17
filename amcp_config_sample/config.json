@@ -2,25 +2,25 @@
   "url": "http://1.2.3.4:3400/amcp/mini-machine",
   "function":{
     "name": "access_remote_machine",
-    "description": "AMCP(agentplus model context protocol) that can access to remote machine.",
+    "description": "AMCP Remote Machine Access Guide: Use JSON format parameters {instruction,path,row,value} to execute these commands: (1)tell-folder:display folder contents,requires path=/path/; (2)tell-process:show running processes,params=0; (3)tell-nvidia:display GPU status,params=0; (4)tell-memory:show memory usage,params=0; (5)tell-disk:show disk usage,params=0; (6)read-file:read file content,requires path=/path/file,row=starting_line(usually 1); (7)search-in-file:search within file,requires path=/path/file,value=keyword; (8)tell-cpu:show CPU info,params=0; (9)search-file:find files,requires path=search_scope,value=target_name; (10)tell-git:view Git repo,requires path={'owner':'owner_name','repo':'repo_name'}; (11)read-git-file:read Git repo file,requires path={'owner':'owner_name','repo':'repo_name','filename':'file_path'},optional row=starting_line. (12)tell-git-folder:view files in a specific folder of a Git repo,requires path={'owner':'owner_name','repo':'repo_name','folder_path':'folder_relative_path'}. Set unused parameters to 0.",
     "parameters": {
       "type": "object",
       "properties": {
         "instruction": {
           "type": "string",
-          "description": "instruction that you want to interact with this system,choose from here:(1)'tell-folder':tell what is inside the folder,require path like /home.(2)'tell-process':tell what process is running.(3)'tell-nvidia':tell about the nvidia GPU's status (if have one).(4)'tell-memory':tell memory usage.(5)'tell-disk':tell disk usage.(6)'read-file':read file by path and row,require path and row,path like /folder/code.py, and the row parameter decides where you start reading,basiclly you should input 1 to read from first line.(7)'search-in-file':search any keyword or sentence in a file,require path and value.(8)'tell-cpu':tell about the CPU.(9)'search-file':to find file or folder under the path,require path and value,path for the searching range,value for target file's name(or folder).(10)'tell-git':check a git repository by inputing a path parameter with a like {'owner':owner's name,'repo':repository's name},then you will get the information of that repository(11)'read-git-file':check a file in inside a git repository by inputing path parameter with  like {'owner':owner's name,'repo':repository's name,'filename':file's name inside that git like 'readme.md' or 'folder/file.xx'}, and maybe the row parameter ,that decides where you start reading,basiclly you should input 1 to read from first line."
+          "description": "choose the command you want to use."
         },
         "path": {
           "type": "string",
-          "description": "the path of folder or file that you want.leave 0 if you do not need it."
+          "description": "parameter path"
         },
         "row": {
           "type": "number",
-          "description": "the row when you are reading a file,basiclly you can input 1 if you want read from the first line,leave 0 if you do not need it."
+          "description": "parameter row"
         },
         "value": {
           "type": "string",
-          "description": "keyword or sentence if you are searching in a file,leave 0 if you do not need it."
+          "description": "parameter value"
         }
       }
     }
@@ -33,4 +33,3 @@
     "password": ".........."
   }
 }
-
