@@ -1,5 +1,5 @@
 
-```markdown
+
 
 # AMCP Flask Server  
 🔗 GitHub 地址：[https://github.com/zhouwuqi/amcp-remote-access-simple](https://github.com/zhouwuqi/amcp-remote-access-simple)
