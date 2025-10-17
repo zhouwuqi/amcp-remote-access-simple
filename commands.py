@@ -1,4 +1,5 @@
 from terminal import *
+from git import *
 import shlex
 
 
@@ -20,6 +21,8 @@ def command_tell_memory():
 
 def command_tell_disk():
     return(run_command("df -h"))
+
+
 
 def command_read_file(path, row=None):
     total_lines_cmd = f"wc -l < {path}"
@@ -78,6 +81,62 @@ def command_tell_cpu():
 def command_search_file_folder(path,value):
     return(run_command("find "+path+" -name " + value))
 
+
+
+
+def git_read_repo(owner,repo):
+    # owner = 'zhouwuqi'
+    # repo = 'amcp-remote-access-simple'
+
+    # 获取文件列表
+    files, branch = get_repo_files(owner, repo)
+    # print(f"仓库默认分支: {branch}\n")
+    # print(files)
+    fileList = []
+    for file in files:
+        # print(file['name'])
+        fileList.append(file['name'])
+    return({
+        "branch_default":branch,
+        "fileList":fileList
+    })
+
+
+def git_read_file_by_rows(file_path, owner, repo, start_row=None, max_lines=100):
+    # 获取完整的文件内容
+    content = None
+    try:
+        content = get_file_content(file_path, owner, repo)
+    except:pass
+    if content is None:
+        return "[错误] 无法获取文件内容,没找到指定文件."
+
+    lines = content.splitlines(keepends=True)
+    total_lines = len(lines)
+
+    # 计算要读取的行范围
+    if start_row is None:
+        read_from_row = 1
+    else:
+        read_from_row = max(1, int(start_row))
+    read_to_row = min(read_from_row + max_lines - 1, total_lines)
+    fully_read = read_to_row == total_lines
+
+    selected_lines = lines[read_from_row - 1:read_to_row]
+    # 构造 metadata 字符串
+    metadata = (
+        "############### FILE METADATA ###############\n"
+        f"path:{file_path}\n"
+        f"max_row:{total_lines}\n"
+        f"read_from_row_this_time:{read_from_row}\n"
+        f"read_to_row_this_time:{read_to_row}\n"
+        f"if_have_read_all:{'True' if fully_read else 'False'}\n"
+        "#############################################\n"
+    )
+
+    return metadata + ''.join(selected_lines)
+
+
 if __name__ == "__main__":
 
     path = "/home"
@@ -89,5 +148,15 @@ if __name__ == "__main__":
     # print(command_read_file(path, row))
 
     keyword = "changeFavicon"
-    print(find_keyword_in_file(path, keyword))
+    # print(find_keyword_in_file(path, keyword))
+
+    owner = 'zhouwuqi'
+    repo = 'amcp-remote-access-simple'
+    print(git_read_repo(owner,repo))
+
+    file_path = "amcp_config_sample/config.json"
+    # print(git_read_file(file_path,owner,repo))
+    start_row = None
+    # print(git_read_file_by_rows(file_path, owner, repo, start_row=start_row))
+
     pass

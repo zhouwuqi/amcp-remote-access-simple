@@ -3,3 +3,4 @@ dotenv
 requests
 gevent
 gunicorn
+GitPython

@@ -81,6 +81,57 @@ def sample_sync():
                 else:
                     returnData = "invaild path or value"
 
+
+            elif(instruction == "tell-git"):
+                if("path" in input.keys()):
+                    path = input["path"]
+                    # print("---------")
+                    # print(path)
+                    # print(type(path))
+                    try:
+                        # 两种情况都有可能
+                        try:
+                            owner = path["owner"]
+                            repo = path["repo"]
+                        except:
+                            pathDict = json.loads(path)
+                            owner = pathDict["owner"]
+                            repo = pathDict["repo"]
+                        returnData = git_read_repo(owner,repo)
+                    except:
+                        returnData = "invaild path,please input a json"
+                    # value = input["value"]
+                    
+                else:
+                    returnData = "invaild path or value"
+
+            elif(instruction == "read-git-file"):
+                if("path" in input.keys()):
+                    path = input["path"]
+                    if("row" in input.keys()):
+                        row = int(input["row"])
+                    else:
+                        row = None
+                    try:
+                        # 两种情况都有可能
+                        try:
+                            owner = path["owner"]
+                            repo = path["repo"]
+                            filename =  path["filename"]
+                        except:
+                            pathDict = json.loads(path)
+                            owner = pathDict["owner"]
+                            repo = pathDict["repo"]
+                            filename =  pathDict["filename"]
+                        
+                        returnData = git_read_file_by_rows(filename, owner, repo,row)
+                    except:
+                        returnData = "invaild path,please input a json"
+                    # value = input["value"]
+                else:
+                    returnData = "invaild path or row."
+                
+
             else:
                 returnData = "no such instruction."
  
